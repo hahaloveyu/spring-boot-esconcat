@@ -1,0 +1,92 @@
+buildscript {
+	ext {
+		springBootVersion = '2.1.1.RELEASE'
+	}
+	repositories {
+		maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+		maven { url 'http://repo.spring.io/plugins-release' }
+		maven { url "https://plugins.gradle.org/m2/" }
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.toptime.search'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+springBoot {
+	//可执行文件
+//	executable = true
+	layout = "ZIP"
+}
+processResources {
+	from('src/main/resources') {
+		include '**/*.xml'
+	}
+}
+
+compileJava.dependsOn(processResources)
+
+
+repositories {
+	maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
+//    mavenCentral()
+}
+
+//导出依赖jar包
+task copyJars(type: Copy) {
+
+	from configurations.runtime
+
+	into 'build/libs' // 目标位置
+
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile('org.springframework.boot:spring-boot-starter-aop')
+
+	compile('org.springframework.boot:spring-boot-starter-jdbc')
+	compile group: 'com.oracle', name: 'ojdbc6', version: '11.2.0.3'
+
+	// 数据库连接池
+	compile group: 'com.alibaba', name: 'druid', version: '1.1.0'
+	compile group: 'com.alibaba', name: 'druid-spring-boot-starter', version: '1.1.0'
+
+
+	// ES5
+	compile group: 'org.elasticsearch', name: 'elasticsearch', version: '5.6.5'
+	compile group: 'org.elasticsearch.client', name: 'transport', version: '5.6.5'
+
+	// commons
+	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
+	compile group: 'commons-io', name: 'commons-io', version: '2.5'
+
+	// fastjson
+	compile group: 'com.alibaba', name: 'fastjson', version: '1.2.17'
+
+	// hanlp
+	compile group: 'com.hankcs', name: 'hanlp', version: 'portable-1.6.4'
+
+	// zkclient
+	compile(group: 'com.101tec', name: 'zkclient', version: '0.10') {
+		exclude group: 'org.slf4j'
+	}
+	compile group: 'org.apache.curator', name: 'curator-client', version: '2.12.0'
+	compile group: 'org.apache.curator', name: 'curator-framework', version: '2.12.0'
+	compile group: 'org.apache.curator', name: 'curator-recipes', version: '2.12.0'
+
+
+	compile fileTree(dir: 'libs', include: ['*.jar'])
+
+	compileOnly "org.springframework.boot:spring-boot-configuration-processor"
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+}
